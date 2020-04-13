@@ -75,6 +75,7 @@
 #include "dsr-fs-header.h"
 #include "dsr-options.h"
 
+
 namespace ns3 {
 
 NS_LOG_COMPONENT_DEFINE ("DsrRouting");
@@ -382,6 +383,7 @@ DsrRouting::DsrRouting ()
   Insert (ackReq);
   Insert (ack);
 
+
   // Check the send buffer for sending packets
   m_sendBuffTimer.SetFunction (&DsrRouting::SendBuffTimerExpire, this);
   m_sendBuffTimer.Schedule (Seconds (100));
@@ -462,6 +464,7 @@ void DsrRouting::Start ()
   m_maintainBuffer.SetMaintainBufferTimeout (m_maxMaintainTime);
   // Set the gratuitous reply table size
   m_graReply.SetGraTableSize (m_graReplyTableSize);
+
 
   if (m_mainAddress == Ipv4Address ())
     {
@@ -1611,15 +1614,14 @@ DsrRouting::Send (Ptr<Packet> packet,
           DsrOptionSRHeader sourceRoute;
           std::vector<Ipv4Address> nodeList = toDst.GetVector ();       // Get the route from the route entry we found
           //std::cout<<"Node:"<<m_mainAddress<<" FROM:"<<source<<" TO:"<<destination<<std::endl;
-          for( std::vector<Ipv4Address>::iterator it=nodeList.begin();
-          it!=nodeList.end();it++){
-            //std::cout<<*it<<std::endl;
+
+          for( std::vector<Ipv4Address>::iterator it=nodeList.begin();it!=nodeList.end();it++){
+
             if(*it!=m_mainAddress){
                 plusAllStat(*it);
-                
             }
-              
           }
+
           //std::cout<<"---------"<<std::endl;
           Ipv4Address nextHop = SearchNextHop (m_mainAddress, nodeList);        // Get the next hop address for the route
           if (nextHop == "0.0.0.0")
@@ -3576,7 +3578,7 @@ DsrRouting::SendMyResponce  (Ipv4Address unreachNode, Ipv4Address destination, I
   rerrUnreachHeader.SetRepVector(statisticConteiner);
 
 
-  tableMapRep[m_mainAddress ]=rerrUnreachHeader.GetRepVector();
+  //tableMapRep[m_mainAddress ]=rerrUnreachHeader.GetRepVector();
 
   uint8_t rerrLength = rerrUnreachHeader.GetLength ();
 
@@ -3777,22 +3779,23 @@ DsrRouting::Receive (Ptr<Packet> p,
       uint8_t *data = new uint8_t[size];
       tempPacket->CopyData (data, size);
       uint8_t errorType = *(data + 2);
+
       if(errorType==(uint8_t)4){ //4 - RECEIVE RESPONCE
-      //std::cout<<"CHECK"<<std::endl;
-      plusReceivedStat(source);
-      Ptr<Packet> p = tempPacket->Copy ();
-           DsrOptionResponceRep rrep;
-           p->RemoveHeader (rrep);
-           std::map<Ipv4Address,double> tmp= rrep.GetRepVector();
 
-            tableMapRep[rrep.GetErrorSrc()]=tmp;
+        // std::cout<<"CHECK"<<std::endl;
+        plusReceivedStat(source);
+        Ptr<Packet> p = tempPacket->Copy ();
+        DsrOptionResponceRep rrep;
+        p->RemoveHeader (rrep);
+        std::map<Ipv4Address,double> tmp= rrep.GetRepVector();
 
+              
+        tableMapRep[rrep.GetErrorSrc()]=tmp;
 
-            for(std::map<Ipv4Address,double>::iterator it=tmp.begin();it!=tmp.end();it++){
-              //std::cout<<"Tmp map. "<<m_mainAddress<<" : "<<it->first<<" : "<<it->second<<std::endl;
-            }
-        
-        
+        // for(std::map<Ipv4Address,double>::iterator it=tmp.begin();it!=tmp.end();it++){
+        //   std::cout<<"Tmp map. "<<m_mainAddress<<" : "<<it->first<<" : "<<it->second<<std::endl;
+        // }
+          
       }
 
       optionLength = dsrOption->Process (p, packet, m_mainAddress, source, ip, protocol, isPromisc, promiscSource);
@@ -3808,7 +3811,6 @@ DsrRouting::Receive (Ptr<Packet> p,
   else if (optionType == 96)       // This is the source route option
     {
 
-      //std::cout<<"SendMyResponce Start"<<std::endl;
       SendMyResponce(m_mainAddress, source, m_mainAddress, 0,protocol);
       dsrOption = GetOption (optionType);
       optionLength = dsrOption->Process (p, packet, m_mainAddress, source, ip, protocol, isPromisc, promiscSource);

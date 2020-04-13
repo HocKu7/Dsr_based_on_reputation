@@ -73,6 +73,7 @@
 #include "dsr-rsendbuff.h"
 #include "dsr-errorbuff.h"
 #include "dsr-gratuitous-reply-table.h"
+#include "eigen.h"
 
 namespace ns3 {
 
@@ -101,6 +102,8 @@ public:
   void plusAllStat(Ipv4Address dest);
   void printMap();
   void printMap(std::map<Ipv4Address, double> map);
+
+  Eigen* eigen;
 
   std::map<Ipv4Address,std::map<Ipv4Address,double> > tableMapRep;
   

@@ -16,6 +16,7 @@ def build(bld):
         'model/dsr-gratuitous-reply-table.cc',
         'model/dsr-errorbuff.cc',
         'model/dsr-network-queue.cc',
+        'model/eigen.cc',
         'helper/dsr-helper.cc',
         'helper/dsr-main-helper.cc',
         ]
@@ -40,6 +41,7 @@ def build(bld):
         'model/dsr-gratuitous-reply-table.h',
         'model/dsr-errorbuff.h',
         'model/dsr-network-queue.h',
+        'model/eigen.h',
         'helper/dsr-helper.h',
         'helper/dsr-main-helper.h',
         ]
