@@ -1089,15 +1089,16 @@ void DsrOptionResponceRep::SetRepVector (std::map<Ipv4Address, std::pair<int,int
     if(result>1.0){
       result=1.0;
     }
-    vectorMap[it->first]=result;
+    vectorMap[it->first].first=sendNumber;
+    vectorMap[it->first].second=recvNumber;
     //counter++;
   }
   //int curLenght=GetLength();
   //SetLength(curLenght+m.size()*6);
-  SetLength(18+m.size()*(4+2));
+  SetLength(/*default*/ 18 + /*payload*/ m.size() * (4 + 4));
 }
 
-std::map<Ipv4Address, double >
+std::map<Ipv4Address, std::pair<int, int> >
 DsrOptionResponceRep::GetRepVector (){
   return vectorMap;
 }
@@ -1161,7 +1162,7 @@ uint32_t DsrOptionResponceRep::GetSerializedSize () const
 
   //std::cout<<"sizeMap: "<<vectorMap.size()<<" GetLenght: "<<(int)GetLength()<<std::endl;
   //return 20+6+vectorMap.size()*6;//6 - 0.0.0.0 + (uint16)-1
-  return 20+vectorMap.size()*(4+2);
+  return 20+vectorMap.size()*(4+4);
   //return 38;// +size *4+size*sizeof(uint32_t);
 }
 
@@ -1183,60 +1184,24 @@ void DsrOptionResponceRep::Serialize (Buffer::Iterator start) const
   WriteTo (i, m_originalDst);
   uint8_t buff[4];
   VectorIpv4Address_t m_ipv4Address;
-  std::vector<double> doubleVector;
+  std::vector<std::pair<int, int> > valueVector;
 
-  for(std::map<Ipv4Address, double >::const_iterator it=vectorMap.begin();it!=vectorMap.end();
+  for(std::map<Ipv4Address, std::pair<int, int> >::const_iterator it=vectorMap.begin();it!=vectorMap.end();
   it++){
     m_ipv4Address.push_back(it->first);
-    doubleVector.push_back(it->second);
+    valueVector.push_back(it->second);
   }
-  std::vector<double>::iterator dit=doubleVector.begin();
+  std::vector<std::pair<int, int> >::iterator dit=valueVector.begin();
   for (VectorIpv4Address_t::const_iterator it = m_ipv4Address.begin (); it != m_ipv4Address.end (); it++)
     {
       //std::cout<<"Serialize adress: "<<*it<<std::endl;
       it->Serialize (buff);
       i.Write (buff, 4);
-      uint16_t tmp=(uint16_t)(*dit*1000);
+      uint16_t tmp=(uint16_t)dit->second; //success
+      i.WriteU16(tmp);
+      tmp=(uint16_t)dit->first; // unsuccess
       i.WriteU16(tmp);
     }
-
-
-  // WriteTo (i, Ipv4Address("123.23.32.32"));
-  // i.WriteU16 ((uint16_t)549);
-  
-
-  // double doub=0.732;
-  // uint16_t testInt=doub*100;
-  // WriteTo(i,Ipv4Address("127.0.0.1"));
-  // i.WriteU16((uint16_t)testInt);
-  // std::map<Ipv4Address, double > tempVector;
-  // tempVector[Ipv4Address("127.0.0.2")]=0.5;
-  // tempVector[Ipv4Address("233.0.4.122")]=0.823;
-  // tempVector[Ipv4Address("189.34.5.78")]=0.2332;
-  //std::cout<<"---------"<<std::endl;
-  // int j=0;
-  // for(std::map<Ipv4Address, double >::const_iterator it=vectorMap.begin();j<3;
-  // j++){
-  //   if(it!=vectorMap.end()){
-  //   //std::cout<<it->first<< " :"<<it->second<<std::endl;
-  //   WriteTo(i, it->first);
-  //   uint16_t value=it->second*1000;
-  //   i.WriteU16(value);
-  //   it++;
-  //   }else{
-  //   WriteTo(i, Ipv4Address("0.0.0.0"));
-  //   uint16_t value=(uint16_t)-1;
-  //   i.WriteU16(value);
-  //   }
-
-    
- 
-  //}
-
-  // WriteTo(i, Ipv4Address("0.0.0.0"));
-  // //WriteDouble(i, -1.0);
-  // i.WriteU16((uint16_t)-1);
-  //std::cout<<"---------"<<std::endl;
 
 }
 
@@ -1266,29 +1231,15 @@ uint32_t DsrOptionResponceRep::Deserialize (Buffer::Iterator start)
       m_address = Ipv4Address::Deserialize (buff);
       //SetNodeAddress (index, m_address);
       //std::cout<<"Deserialize adress: "<<m_address<<std::endl;
-      vectorMap[m_address]=(double)i.ReadU16 ()/1000;
+      int success=(int)i.ReadU16();
+      vectorMap[m_address].first=success;
+
+      int unsuccess=(int)i.ReadU16();
+      vectorMap[m_address].second=unsuccess;
+
       ++index;
     }
-  // Ipv4Address test;
-  // uint16_t testInt;
-  // ReadFrom (i, test);
-  // testInt=i.ReadU16();
-  // vectorMap[test]=(double)testInt/1000;
-  //double doub=(double)testInt/100;
-  // std::cout<<"IP4: "<<test<<", intTest:"<<doub<<std::endl;
-  // while(1){
-  //   // std::cout<<it->first<< " :"<<it->second<<std::endl;
-  //   Ipv4Address addr;
-  //   ReadFrom(i, addr);
-  //   if(addr.IsEqual(Ipv4Address("0.0.0.0"))){
-  //     //std::cout<<"break"<<std::endl;
-  //     i.ReadU16();
-  //     break;
-  //   }
-  //   double value=(double)(i.ReadU16())/1000;
-  //   vectorMap[addr]=value;
-  //   //std::cout<<addr<< " :"<<value<<std::endl;
-  // }
+
   return GetSerializedSize ();
 }
 

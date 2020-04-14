@@ -1,8 +1,11 @@
+#ifndef EIGEN_H
+#define EIGEN_H
 
-#pragma once
 #include <string>
+#include "/home/vanet/tarballs/EigenLib/eigen-3.2.10/Eigen/Dense"
 
 using namespace std;
+namespace ns3 {
 class Eigen{
 
 private:
@@ -14,3 +17,5 @@ public:
     string getTestField();
 
 };
+}
+#endif /* EIGEN_H */

@@ -383,6 +383,7 @@ DsrRouting::DsrRouting ()
   Insert (ackReq);
   Insert (ack);
 
+  eigen=new Eigen();
 
   // Check the send buffer for sending packets
   m_sendBuffTimer.SetFunction (&DsrRouting::SendBuffTimerExpire, this);
@@ -3787,14 +3788,15 @@ DsrRouting::Receive (Ptr<Packet> p,
         Ptr<Packet> p = tempPacket->Copy ();
         DsrOptionResponceRep rrep;
         p->RemoveHeader (rrep);
-        std::map<Ipv4Address,double> tmp= rrep.GetRepVector();
+        std::map<Ipv4Address, std::pair<int, int> > tmp= rrep.GetRepVector();
 
               
-        tableMapRep[rrep.GetErrorSrc()]=tmp;
+        //tableMapRep[rrep.GetErrorSrc()]=tmp;
 
-        // for(std::map<Ipv4Address,double>::iterator it=tmp.begin();it!=tmp.end();it++){
-        //   std::cout<<"Tmp map. "<<m_mainAddress<<" : "<<it->first<<" : "<<it->second<<std::endl;
-        // }
+        for(std::map<Ipv4Address,std::pair<int, int> >::iterator it=tmp.begin();it!=tmp.end();it++){
+          std::cout<<"Tmp map. "<<m_mainAddress<<" : "<<it->first
+          <<" : "<<it->second.first<<" : "<<it->second.second <<std::endl;
+        }
           
       }
 

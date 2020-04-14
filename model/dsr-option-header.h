@@ -1027,9 +1027,9 @@ class DsrOptionResponceRep : public DsrOptionRerrHeader
 {
 public:
 
-  std::map<Ipv4Address, double> vectorMap;
+  std::map<Ipv4Address, std::pair<int, int> > vectorMap;
   void SetRepVector (std::map<Ipv4Address, std::pair<int,int> > m);
-  std::map<Ipv4Address, double > GetRepVector ();
+  std::map<Ipv4Address, std::pair<int, int> > GetRepVector ();
 
     typedef std::vector<Ipv4Address> VectorIpv4Address_t;
   /**
