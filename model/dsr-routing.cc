@@ -384,6 +384,7 @@ DsrRouting::DsrRouting ()
   Insert (ack);
 
   eigen=new Eigen();
+  waitList.resize(WAIT_LIST_CAPACITY);
 
   // Check the send buffer for sending packets
   m_sendBuffTimer.SetFunction (&DsrRouting::SendBuffTimerExpire, this);
@@ -670,7 +671,7 @@ DsrRouting::DoDispose (void)
     //std::cout<<"END routing"<<std::endl;
     //printMap();
        std::cout<<"MainNode: "<<m_mainAddress<<std::endl;
-  for (std::map<Ipv4Address, std::map<Ipv4Address,double> >::const_iterator it = this->tableMapRep.begin();
+  for (std::map<Ipv4Address, std::map<Ipv4Address,std::pair<int,int> > >::const_iterator it = this->tableMapRep.begin();
        it != this->tableMapRep.end(); ++it)
   {
     std::cout<<"Node: "<<it->first<<std::endl;
@@ -1522,14 +1523,16 @@ DsrRouting::ForwardErrPacket (DsrOptionRerrUnreachHeader &rerr,
    }
 }
 void DsrRouting::plusAllStat(Ipv4Address dest){ 
+ 
+  tableMapRep[m_mainAddress][dest].first++;
   statisticConteiner[dest].first++;
-
-  //DsrOptionResponceRep::vector[0]=(double)(statisticConteiner[dest].first/statisticConteiner[dest].second);
 }
 void DsrRouting::plusReceivedStat(Ipv4Address senderIface){
-statisticConteiner[senderIface].second++;
-//DsrOptionResponceRep::vector[0]=(double)(statisticConteiner[senderIface].first/statisticConteiner[senderIface].second);
- }
+
+    tableMapRep[m_mainAddress][senderIface].second++;
+    statisticConteiner[senderIface].second++;
+}
+
  void DsrRouting::printMap()
 {
   std::cout<<"Node: "<<m_mainAddress<<std::endl;
@@ -1540,13 +1543,13 @@ statisticConteiner[senderIface].second++;
   }
    std::cout<<"---------------------"<<std::endl;
 }
- void DsrRouting::printMap(std::map<Ipv4Address, double> map)
+ void DsrRouting::printMap(std::map<Ipv4Address, std::pair<int, int> > map)
 {
   //std::cout<<"Node: "<<m_mainAddress<<std::endl;
-  for (std::map<Ipv4Address, double >::const_iterator it =map.begin();
+  for (std::map<Ipv4Address, std::pair<int, int> >::const_iterator it =map.begin();
        it != map.end(); it++)
   {
-    std::cout << it->first << " : "<<it->second<<std::endl;
+    std::cout << it->first << " : "<<it->second.first<<" : "<<it->second.second<<std::endl;
   }
    std::cout<<"---------------------"<<std::endl;
 }
@@ -1619,6 +1622,16 @@ DsrRouting::Send (Ptr<Packet> packet,
           for( std::vector<Ipv4Address>::iterator it=nodeList.begin();it!=nodeList.end();it++){
 
             if(*it!=m_mainAddress){
+
+                if(waitList.size()>=WAIT_LIST_CAPACITY){
+
+                  //std::cout<<"SIZE IN IF :"<<waitList.size()<<std::endl;          
+                  //Ipv4Address pop=waitList.front();
+                  waitList.pop_front();
+                }
+                //std::cout<<"SIZE IN BETWEEN :"<<waitList.size()<<std::endl;
+                waitList.push_back(*it);
+                //std::cout<<"SIZE IN AFTER :"<<waitList.size()<<std::endl;
                 plusAllStat(*it);
             }
           }
@@ -3788,15 +3801,18 @@ DsrRouting::Receive (Ptr<Packet> p,
         Ptr<Packet> p = tempPacket->Copy ();
         DsrOptionResponceRep rrep;
         p->RemoveHeader (rrep);
+        Ipv4Address src= rrep.GetErrorSrc();
         std::map<Ipv4Address, std::pair<int, int> > tmp= rrep.GetRepVector();
 
               
-        //tableMapRep[rrep.GetErrorSrc()]=tmp;
+        tableMapRep[rrep.GetErrorSrc()]=tmp;
 
-        for(std::map<Ipv4Address,std::pair<int, int> >::iterator it=tmp.begin();it!=tmp.end();it++){
-          std::cout<<"Tmp map. "<<m_mainAddress<<" : "<<it->first
-          <<" : "<<it->second.first<<" : "<<it->second.second <<std::endl;
-        }
+        Utill::deleteFirst(waitList, src);
+
+        // for(std::map<Ipv4Address,std::pair<int, int> >::iterator it=tmp.begin();it!=tmp.end();it++){
+        //   std::cout<<"Tmp map. "<<m_mainAddress<<" : "<<it->first
+        //   <<" : "<<it->second.first<<" : "<<it->second.second <<std::endl;
+        // }
           
       }
 

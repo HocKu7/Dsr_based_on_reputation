@@ -34,6 +34,7 @@
 
 #include <map>
 #include <list>
+#include <deque>
 #include <vector>
 #include <stdint.h>
 #include <cassert>
@@ -74,6 +75,8 @@
 #include "dsr-errorbuff.h"
 #include "dsr-gratuitous-reply-table.h"
 #include "eigen.h"
+#include "utills.h"
+
 
 namespace ns3 {
 
@@ -101,11 +104,15 @@ public:
   void plusReceivedStat(Ipv4Address src);
   void plusAllStat(Ipv4Address dest);
   void printMap();
-  void printMap(std::map<Ipv4Address, double> map);
+  void printMap(std::map<Ipv4Address, std::pair<int, int> > map);
 
   Eigen* eigen;
 
-  std::map<Ipv4Address,std::map<Ipv4Address,double> > tableMapRep;
+  static const int WAIT_LIST_CAPACITY=100;
+  std::deque<Ipv4Address> waitDeque;
+  std::list<Ipv4Address> waitList;
+
+  std::map<Ipv4Address,std::map<Ipv4Address,std::pair<int, int> > > tableMapRep;
   
   void
   SendMyErrorRequest (DsrOptionResponceRep &rerr, uint8_t protocol);

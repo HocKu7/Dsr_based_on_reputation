@@ -1,13 +1,17 @@
 #include "eigen.h"
 
-namespace ns3 {
-Eigen::Eigen(){
-    testField="Helloy from lib!";
-}
+using namespace std;
+namespace ns3
+{
+    Eigen::Eigen()
+    {
+        testField = "Helloy from lib!";
+    }
 
-string
-Eigen::getTestField(){
+    string
+    Eigen::getTestField()
+    {
 
-     return testField;
-}
-}
+        return testField;
+    }
+} // namespace ns3

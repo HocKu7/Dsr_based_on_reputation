@@ -5,17 +5,17 @@
 #include "/home/vanet/tarballs/EigenLib/eigen-3.2.10/Eigen/Dense"
 
 using namespace std;
-namespace ns3 {
-class Eigen{
+namespace ns3
+{
+    class Eigen
+    {
 
-private:
-    string testField;
+    private:
+        string testField;
 
-public:
-
-    Eigen();
-    string getTestField();
-
-};
-}
+    public:
+        Eigen();
+        string getTestField();
+    };
+} // namespace ns3
 #endif /* EIGEN_H */

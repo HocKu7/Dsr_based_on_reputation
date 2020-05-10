@@ -1225,7 +1225,7 @@ uint32_t DsrOptionResponceRep::Deserialize (Buffer::Iterator start)
   uint8_t buff[4];
   uint8_t index = 0;
   //for (std::vector<Ipv4Address>::iterator it = m_ipv4Address.begin (); it != m_ipv4Address.end (); it++)
-    for(int j=18;j<lengthData;j+=6)
+    for(int j=18;j<lengthData;j+=8)
     {
       i.Read (buff, 4);
       m_address = Ipv4Address::Deserialize (buff);
