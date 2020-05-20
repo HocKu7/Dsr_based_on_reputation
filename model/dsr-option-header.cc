@@ -1251,13 +1251,14 @@ DsrOptionHeader::Alignment DsrOptionResponceRep::GetAlignment () const
 
 //ACK_REP----------------------------------------------------------------------------------
 
+
 NS_OBJECT_ENSURE_REGISTERED (DsrOptionAckRep);
 
 TypeId DsrOptionAckRep::GetTypeId ()
 {
   static TypeId tid = TypeId ("ns3::dsr::DsrOptionAckRep")
     .AddConstructor<DsrOptionAckRep> ()
-    .SetParent<DsrOptionAckRep> ()
+    .SetParent<DsrOptionRerrHeader> ()
     .SetGroupName ("Dsr")
   ;
   return tid;
@@ -1269,9 +1270,9 @@ TypeId DsrOptionAckRep::GetInstanceTypeId () const
 }
 
 DsrOptionAckRep::DsrOptionAckRep ()
-: m_salvage (0)
+  :
+    m_salvage (0)
 {
- 
   SetType (3);
   SetLength (18);
   SetErrorType (5);
@@ -1284,33 +1285,6 @@ DsrOptionAckRep::~DsrOptionAckRep ()
 void DsrOptionAckRep::SetSalvage (uint8_t salvage)
 {
   m_salvage = salvage;
-}
-
-void DsrOptionAckRep::SetRepVector (std::map<Ipv4Address, std::pair<int,int> > m){
-
-//int counter=0;
-  for (std::map<Ipv4Address, std::pair<int, int> >::const_iterator it = m.begin();
-       it != m.end(); it++)
-  {
-    //std::cout << it->first << " Send packets:" << it->second.first << " Received packets: " << it->second.second << "\n";
-    int sendNumber=it->second.first;
-    int recvNumber=it->second.second;
-    double result=(double)recvNumber/sendNumber;
-    if(result>1.0){
-      result=1.0;
-    }
-    vectorMap[it->first].first=sendNumber;
-    vectorMap[it->first].second=recvNumber;
-    //counter++;
-  }
-  //int curLenght=GetLength();
-  //SetLength(curLenght+m.size()*6);
-  SetLength(/*default*/ 18 + /*payload*/ m.size() * (4 + 4));
-}
-
-std::map<Ipv4Address, std::pair<int, int> >
-DsrOptionAckRep::GetRepVector (){
-  return vectorMap;
 }
 
 uint8_t DsrOptionAckRep::GetSalvage () const
@@ -1366,38 +1340,39 @@ void DsrOptionAckRep::Print (std::ostream &os) const
      << " unreach node = " <<  m_unreachNode << " )";
 }
 
-// void DsrOptionAckRep::setSrc (Ipv4Address src)
-// {
-//   this->src = src;
-// }
-
-// Ipv4Address DsrOptionAckRep::getSrc()
-// {
-//   return this->src;
-// }
-
-uint32_t DsrOptionAckRep::GetSerializedSize() const 
+uint32_t DsrOptionAckRep::GetSerializedSize () const
 {
-  return 4;
+  return 20;
 }
 
-void DsrOptionAckRep::Serialize(Buffer::Iterator start) const
+void DsrOptionAckRep::Serialize (Buffer::Iterator start) const
 {
-  // Buffer::Iterator i = start;
-  // Ipv4Address src = this->src;
-  // uint8_t buff[4];
-  // src.Serialize(buff);
-  // i.Write(buff, 4);
+  Buffer::Iterator i = start;
+
+  i.WriteU8 (GetType ());
+  i.WriteU8 (GetLength ());
+  i.WriteU8 (GetErrorType ());
+  i.WriteU8 (m_salvage);
+  WriteTo (i, m_errorSrcAddress);
+  WriteTo (i, m_errorDstAddress);
+  WriteTo (i, m_unreachNode);
+  WriteTo (i, m_originalDst);
 }
 
-uint32_t DsrOptionAckRep::Deserialize(Buffer::Iterator start)
+uint32_t DsrOptionAckRep::Deserialize (Buffer::Iterator start)
 {
-  // Buffer::Iterator i = start;
-  // uint8_t buff[4];
-  // i.Read(buff, 4);
-  // setSrc(Ipv4Address::Deserialize(buff));
+  Buffer::Iterator i = start;
 
-  return GetSerializedSize();
+  SetType (i.ReadU8 ());
+  SetLength (i.ReadU8 ());
+  SetErrorType (i.ReadU8 ());
+  m_salvage = i.ReadU8 ();
+  ReadFrom (i, m_errorSrcAddress);
+  ReadFrom (i, m_errorDstAddress);
+  ReadFrom (i, m_unreachNode);
+  ReadFrom (i, m_originalDst);
+
+  return GetSerializedSize ();
 }
 
 DsrOptionHeader::Alignment DsrOptionAckRep::GetAlignment () const
