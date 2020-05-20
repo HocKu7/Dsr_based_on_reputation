@@ -1058,9 +1058,7 @@ DsrOptionResponceRep::DsrOptionResponceRep ()
   :
     m_salvage (0)
 {
-  // for(int i=0;i<SIZE_VECTOR;i++){
-  //   vector[i]=0.0;
-  // }
+ 
   SetType (3);
   SetLength (18);
   SetErrorType (4);
@@ -1251,8 +1249,162 @@ DsrOptionHeader::Alignment DsrOptionResponceRep::GetAlignment () const
 
 
 
+//ACK_REP----------------------------------------------------------------------------------
 
+NS_OBJECT_ENSURE_REGISTERED (DsrOptionAckRep);
 
+TypeId DsrOptionAckRep::GetTypeId ()
+{
+  static TypeId tid = TypeId ("ns3::dsr::DsrOptionAckRep")
+    .AddConstructor<DsrOptionAckRep> ()
+    .SetParent<DsrOptionAckRep> ()
+    .SetGroupName ("Dsr")
+  ;
+  return tid;
+}
+
+TypeId DsrOptionAckRep::GetInstanceTypeId () const
+{
+  return GetTypeId ();
+}
+
+DsrOptionAckRep::DsrOptionAckRep ()
+: m_salvage (0)
+{
+ 
+  SetType (3);
+  SetLength (18);
+  SetErrorType (5);
+}
+
+DsrOptionAckRep::~DsrOptionAckRep ()
+{
+}
+
+void DsrOptionAckRep::SetSalvage (uint8_t salvage)
+{
+  m_salvage = salvage;
+}
+
+void DsrOptionAckRep::SetRepVector (std::map<Ipv4Address, std::pair<int,int> > m){
+
+//int counter=0;
+  for (std::map<Ipv4Address, std::pair<int, int> >::const_iterator it = m.begin();
+       it != m.end(); it++)
+  {
+    //std::cout << it->first << " Send packets:" << it->second.first << " Received packets: " << it->second.second << "\n";
+    int sendNumber=it->second.first;
+    int recvNumber=it->second.second;
+    double result=(double)recvNumber/sendNumber;
+    if(result>1.0){
+      result=1.0;
+    }
+    vectorMap[it->first].first=sendNumber;
+    vectorMap[it->first].second=recvNumber;
+    //counter++;
+  }
+  //int curLenght=GetLength();
+  //SetLength(curLenght+m.size()*6);
+  SetLength(/*default*/ 18 + /*payload*/ m.size() * (4 + 4));
+}
+
+std::map<Ipv4Address, std::pair<int, int> >
+DsrOptionAckRep::GetRepVector (){
+  return vectorMap;
+}
+
+uint8_t DsrOptionAckRep::GetSalvage () const
+{
+  return m_salvage;
+}
+
+void DsrOptionAckRep::SetErrorSrc (Ipv4Address errorSrcAddress)
+{
+  m_errorSrcAddress = errorSrcAddress;
+}
+
+Ipv4Address DsrOptionAckRep::GetErrorSrc () const
+{
+  return m_errorSrcAddress;
+}
+
+void DsrOptionAckRep::SetErrorDst (Ipv4Address errorDstAddress)
+{
+  m_errorDstAddress = errorDstAddress;
+}
+
+Ipv4Address DsrOptionAckRep::GetErrorDst () const
+{
+  return m_errorDstAddress;
+}
+
+void DsrOptionAckRep::SetUnreachNode (Ipv4Address unreachNode)
+{
+  m_unreachNode = unreachNode;
+}
+
+Ipv4Address DsrOptionAckRep::GetUnreachNode () const
+{
+  return m_unreachNode;
+}
+
+void DsrOptionAckRep::SetOriginalDst (Ipv4Address originalDst)
+{
+  m_originalDst = originalDst;
+}
+
+Ipv4Address DsrOptionAckRep::GetOriginalDst () const
+{
+  return m_originalDst;
+}
+
+void DsrOptionAckRep::Print (std::ostream &os) const
+{
+  os << "( type = " << (uint32_t)GetType () << " length = " << (uint32_t)GetLength ()
+     << " errorType = " << (uint32_t)m_errorType << " salvage = " << (uint32_t)m_salvage
+     << " error source = " << m_errorSrcAddress << " error dst = " << m_errorDstAddress
+     << " unreach node = " <<  m_unreachNode << " )";
+}
+
+// void DsrOptionAckRep::setSrc (Ipv4Address src)
+// {
+//   this->src = src;
+// }
+
+// Ipv4Address DsrOptionAckRep::getSrc()
+// {
+//   return this->src;
+// }
+
+uint32_t DsrOptionAckRep::GetSerializedSize() const 
+{
+  return 4;
+}
+
+void DsrOptionAckRep::Serialize(Buffer::Iterator start) const
+{
+  // Buffer::Iterator i = start;
+  // Ipv4Address src = this->src;
+  // uint8_t buff[4];
+  // src.Serialize(buff);
+  // i.Write(buff, 4);
+}
+
+uint32_t DsrOptionAckRep::Deserialize(Buffer::Iterator start)
+{
+  // Buffer::Iterator i = start;
+  // uint8_t buff[4];
+  // i.Read(buff, 4);
+  // setSrc(Ipv4Address::Deserialize(buff));
+
+  return GetSerializedSize();
+}
+
+DsrOptionHeader::Alignment DsrOptionAckRep::GetAlignment () const
+{
+  Alignment retVal = { 4, 0 };
+  return retVal;
+}
 
 
 //-----------------------------------------------------------

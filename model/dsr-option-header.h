@@ -730,6 +730,7 @@ enum ErrorType
   FLOW_STATE_NOT_SUPPORTED  = 2,   // !< FLOW_STATE_NOT_SUPPORTED
   OPTION_NOT_SUPPORTED  = 3,   // !< OPTION_NOT_SUPPORTED
   RESPONCE_REP=4,
+  ACK_REP = 5,
 };
 
 class DsrOptionRerrHeader : public DsrOptionHeader
@@ -1004,6 +1005,7 @@ private:
 
 
 
+  //  RESPONCE_REP
   //  |      0        |      1        |      2        |      3        |
   //  0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7
   //  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1160,6 +1162,51 @@ private:
   Ipv4Address    m_originalDst;
 };
 
+
+
+  //  ACK_REP
+  //  |      0        |      1        |      2        |      3        |
+  //  0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7
+  //  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  //  |                        Source Address                         |
+  //  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+class DsrOptionAckRep : public DsrOptionRerrHeader
+{
+public:
+  std::map<Ipv4Address, std::pair<int, int> > vectorMap;
+  void SetRepVector (std::map<Ipv4Address, std::pair<int,int> > m);
+  std::map<Ipv4Address, std::pair<int, int> > GetRepVector ();
+  typedef std::vector<Ipv4Address> VectorIpv4Address_t;
+  VectorIpv4Address_t m_ipv4Address;
+  static TypeId GetTypeId ();
+  virtual TypeId GetInstanceTypeId () const;
+  DsrOptionAckRep ();
+  virtual ~DsrOptionAckRep ();
+  virtual void SetErrorSrc (Ipv4Address errorSrcAddress);
+  virtual Ipv4Address GetErrorSrc () const;
+  virtual void SetSalvage (uint8_t salvage);
+  virtual uint8_t GetSalvage () const;
+  virtual void SetErrorDst (Ipv4Address errorDstAddress);
+  virtual Ipv4Address GetErrorDst () const;
+  void SetUnreachNode (Ipv4Address unreachNode);
+  Ipv4Address GetUnreachNode () const;
+  void SetOriginalDst (Ipv4Address originalDst);
+  Ipv4Address GetOriginalDst () const;
+  virtual void Print (std::ostream &os) const;
+  virtual uint32_t GetSerializedSize () const;
+  virtual void Serialize (Buffer::Iterator start) const;
+  virtual uint32_t Deserialize (Buffer::Iterator start);
+  virtual Alignment GetAlignment () const;
+
+private:
+  uint8_t        m_errorType;
+  uint8_t        m_salvage;
+  Ipv4Address    m_errorSrcAddress;
+  Ipv4Address    m_errorDstAddress;
+  Ipv4Address    m_unreachNode;
+  Ipv4Address    m_originalDst;
+};
 
 /**
 * \ingroup dsr
