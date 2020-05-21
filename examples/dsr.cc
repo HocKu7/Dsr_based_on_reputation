@@ -78,8 +78,8 @@ main (int argc, char *argv[])
   // General parameters
   uint32_t nWifis = 5;
   uint32_t nSinks = 5;
-  double TotalTime = 20.0;
-  double dataTime = 15.0;
+  double TotalTime = 10.0;
+  //double dataTime = 7.0;
   double ppers = 1;
   uint32_t packetSize = 64;
   double dataStart = 1.0; // start sending data at 100s
@@ -197,7 +197,7 @@ main (int argc, char *argv[])
 
       ApplicationContainer apps1 = onoff1.Install (adhocNodes.Get (3)); //nWifis - nSinks));
       apps1.Start (Seconds (dataStart + i * randomStartTime));
-      apps1.Stop (Seconds (dataTime + i * randomStartTime));
+      apps1.Stop (Seconds (TotalTime));
 
 
     //   ApplicationContainer apps3 = onoff1.Install (adhocNodes.Get ((random()+2)%5)); //nWifis - nSinks));
@@ -212,7 +212,7 @@ main (int argc, char *argv[])
 
   ApplicationContainer apps = onoff.Install (adhocNodes.Get (0));
   apps.Start (Seconds (1.0));
-  apps.Stop (Seconds (20.0));
+  apps.Stop (Seconds (TotalTime));
 
   // Create a packet sink to receive these packets
   PacketSinkHelper sink ("ns3::UdpSocketFactory",
@@ -220,19 +220,19 @@ main (int argc, char *argv[])
 
   apps = sink.Install (adhocNodes.Get (3));
   apps.Start (Seconds (1.0));
-  apps.Stop (Seconds (20.0));
+  apps.Stop (Seconds (TotalTime));
 
   // Create a similar flow from n3 to n1, starting at time 1.1 seconds
   onoff.SetAttribute ("Remote",
                       AddressValue (InetSocketAddress (allInterfaces.GetAddress (0), port)));
   apps = onoff.Install (adhocNodes.Get (3));
   apps.Start (Seconds (1.1));
-  apps.Stop (Seconds (20.0));
+  apps.Stop (Seconds (TotalTime));
 
   // Create a packet sink to receive these packets
   apps = sink.Install (adhocNodes.Get (1));
   apps.Start (Seconds (1.1));
-  apps.Stop (Seconds (20.0));
+  apps.Stop (Seconds (TotalTime));
 
 
 

@@ -1174,125 +1174,32 @@ private:
 class DsrOptionAckRep : public DsrOptionRerrHeader
 {
 public:
-  /**
-   * \brief Get the type identificator.
-   * \return type identificator
-   */
   static TypeId GetTypeId ();
-  /**
-   * \brief Get the instance type ID.
-   * \return instance type ID
-   */
   virtual TypeId GetInstanceTypeId () const;
-  /**
-   * \brief Constructor.
-   */
   DsrOptionAckRep ();
-  /**
-   * \brief Destructor.
-   */
   virtual ~DsrOptionAckRep ();
-  /**
-   * \brief Set the route error source address
-   * \param errorSrcAddress The error source address
-   */
   virtual void SetErrorSrc (Ipv4Address errorSrcAddress);
-  /**
-   * \brief Get the route error source address
-   * \return The error source address
-   */
   virtual Ipv4Address GetErrorSrc () const;
-  /**
-   * \brief Set the salvage value of the packet
-   */
   virtual void SetSalvage (uint8_t salvage);
-  /**
-   * \brief Get the salvage value of the packet
-   * \return The salvage value of the packet
-   */
   virtual uint8_t GetSalvage () const;
-  /**
-   * \brief Set the error destination ip address
-   * \param errorDstAddress The error destination address
-   */
   virtual void SetErrorDst (Ipv4Address errorDstAddress);
-  /**
-   * \brief Get the error destination ip address
-   * \return The error destination address
-   */
   virtual Ipv4Address GetErrorDst () const;
-  /**
-   * \brief Set the unreachable node ip address
-   * \param unreachNode The unreachable ip address
-   */
-  void SetUnreachNode (Ipv4Address unreachNode);
-  /**
-   * \brief Get the unreachable node ip address
-   * \return The unreachable ip address
-   */
-  Ipv4Address GetUnreachNode () const;
-  /**
-   * \brief Set the unreachable node ip address
-   * \param originalDst The unreachable ip address
-   */
+  void SetAckRepNode (Ipv4Address src);
+  Ipv4Address GetAckRepNode () const;
   void SetOriginalDst (Ipv4Address originalDst);
-  /**
-   * \brief Get the unreachable node ip address
-   * \return The unreachable ip address
-   */
   Ipv4Address GetOriginalDst () const;
-  /**
-   * \brief Print some informations about the packet.
-   * \param os output stream
-   * \return info about this packet
-   */
   virtual void Print (std::ostream &os) const;
-  /**
-   * \brief Get the serialized size of the packet.
-   * \return size
-   */
   virtual uint32_t GetSerializedSize () const;
-  /**
-   * \brief Serialize the packet.
-   * \param start Buffer iterator
-   */
   virtual void Serialize (Buffer::Iterator start) const;
-  /**
-   * \brief Deserialize the packet.
-   * \param start Buffer iterator
-   * \return size of the packet
-   */
   virtual uint32_t Deserialize (Buffer::Iterator start);
-  /**
-   * \brief Get the Alignment requirement of this option header
-   * \return The required alignment
-   */
   virtual Alignment GetAlignment () const;
 
 private:
-  /**
-   * \brief The error type or route error option
-   */
   uint8_t        m_errorType;
-  /**
-   * \brief The salavage field
-   */
   uint8_t        m_salvage;
-  /**
-   * \brief The error source address
-   */
   Ipv4Address    m_errorSrcAddress;
-  /**
-   * \brief The error destination address
-   */
   Ipv4Address    m_errorDstAddress;
-  /**
-   * \brief The unreachable node address
-   */
-  Ipv4Address    m_unreachNode;
-  /**
-   * \brief The original destination address
-   */
+  Ipv4Address    m_ackRep;
   Ipv4Address    m_originalDst;
 };
 

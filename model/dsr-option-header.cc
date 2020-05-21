@@ -1312,14 +1312,14 @@ Ipv4Address DsrOptionAckRep::GetErrorDst () const
   return m_errorDstAddress;
 }
 
-void DsrOptionAckRep::SetUnreachNode (Ipv4Address unreachNode)
+void DsrOptionAckRep::SetAckRepNode (Ipv4Address src)
 {
-  m_unreachNode = unreachNode;
+  m_ackRep = src;
 }
 
-Ipv4Address DsrOptionAckRep::GetUnreachNode () const
+Ipv4Address DsrOptionAckRep::GetAckRepNode () const
 {
-  return m_unreachNode;
+  return m_ackRep;
 }
 
 void DsrOptionAckRep::SetOriginalDst (Ipv4Address originalDst)
@@ -1337,7 +1337,7 @@ void DsrOptionAckRep::Print (std::ostream &os) const
   os << "( type = " << (uint32_t)GetType () << " length = " << (uint32_t)GetLength ()
      << " errorType = " << (uint32_t)m_errorType << " salvage = " << (uint32_t)m_salvage
      << " error source = " << m_errorSrcAddress << " error dst = " << m_errorDstAddress
-     << " unreach node = " <<  m_unreachNode << " )";
+     << " ackRep node = " <<  m_ackRep << " )";
 }
 
 uint32_t DsrOptionAckRep::GetSerializedSize () const
@@ -1355,7 +1355,7 @@ void DsrOptionAckRep::Serialize (Buffer::Iterator start) const
   i.WriteU8 (m_salvage);
   WriteTo (i, m_errorSrcAddress);
   WriteTo (i, m_errorDstAddress);
-  WriteTo (i, m_unreachNode);
+  WriteTo (i, m_ackRep);
   WriteTo (i, m_originalDst);
 }
 
@@ -1369,7 +1369,7 @@ uint32_t DsrOptionAckRep::Deserialize (Buffer::Iterator start)
   m_salvage = i.ReadU8 ();
   ReadFrom (i, m_errorSrcAddress);
   ReadFrom (i, m_errorDstAddress);
-  ReadFrom (i, m_unreachNode);
+  ReadFrom (i, m_ackRep);
   ReadFrom (i, m_originalDst);
 
   return GetSerializedSize ();

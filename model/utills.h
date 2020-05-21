@@ -18,6 +18,8 @@ public:
 
     static bool deleteFirst(std::list<Ipv4Address> ipList, Ipv4Address ip);
 
+    static int getMax(int a, int b);
+
 };
 }
 #endif /* UTILS_H */

@@ -29,4 +29,9 @@ namespace ns3
 
         return NULL;
     }
+
+    int
+    Utill::getMax(int a, int b){
+        return a > b ? a : b;
+    }
 } // namespace ns3

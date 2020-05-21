@@ -74,7 +74,7 @@
 #include "dsr-rsendbuff.h"
 #include "dsr-errorbuff.h"
 #include "dsr-gratuitous-reply-table.h"
-#include "eigen.h"
+#include "reputation.h"
 #include "utills.h"
 
 
@@ -106,7 +106,7 @@ public:
   void printMap();
   void printMap(std::map<Ipv4Address, std::pair<int, int> > map);
 
-  Eigen* eigen;
+  Reputation* eigen;
 
   static const int WAIT_LIST_CAPACITY=100;
   std::deque<Ipv4Address> waitDeque;
@@ -499,6 +499,9 @@ public:
   
   void SendMyResponce (Ipv4Address unreachNode, Ipv4Address destination, Ipv4Address originalDst,
    uint8_t salvage, uint8_t protocol);
+  void SendAckRep (Ipv4Address unreachNode, Ipv4Address destination, Ipv4Address originalDst,
+   uint8_t salvage, uint8_t protocol);
+   void SendAckRepRequest (DsrOptionAckRep &rerr, uint8_t protocol);
   
   /**
    * \param p packet to forward up

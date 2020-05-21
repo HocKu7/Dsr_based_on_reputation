@@ -19,7 +19,7 @@ def build(bld):
         'helper/dsr-helper.cc',
         'helper/dsr-main-helper.cc',
         'model/utills.cc',
-        'model/eigen.cc',
+        'model/reputation.cc',
         ]
         
     module_test = bld.create_ns3_module_test_library('dsr')
@@ -45,7 +45,7 @@ def build(bld):
         'helper/dsr-helper.h',
         'helper/dsr-main-helper.h',
         'model/utills.h',
-        'model/eigen.h',
+        'model/reputation.h',
         ]
 
     if (bld.env['ENABLE_EXAMPLES']):
