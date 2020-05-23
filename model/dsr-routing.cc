@@ -680,6 +680,8 @@ DsrRouting::DoDispose (void)
    std::cout<<"---------------------"<<std::endl;
     // std::cout<<std::endl;
 
+    eigen->calculateReputationTable();
+
   IpL4Protocol::DoDispose ();
 }
 
@@ -3856,7 +3858,7 @@ DsrRouting::Receive (Ptr<Packet> p,
 
         // std::cout<<"CHECK"<<std::endl;
         //plusReceivedStat(source);
-        //std::cout<<"GetREPUTATION_RESPONCE"<<std::endl;
+        std::cout<<"GetREPUTATION_RESPONCE"<<std::endl;
         Ptr<Packet> p = tempPacket->Copy ();
         DsrOptionResponceRep rrep;
         p->RemoveHeader (rrep);
@@ -3866,7 +3868,7 @@ DsrRouting::Receive (Ptr<Packet> p,
               
         //tableMapRep[rrep.GetErrorSrc()]=tmp;
         eigen->addToTable(rrep.GetErrorSrc(), tmp);
-        eigen->calculateReputationTable();
+        //eigen->calculateReputationTable();
 
         // for(std::map<Ipv4Address,std::pair<int, int> >::iterator it=tmp.begin();it!=tmp.end();it++){
         //   std::cout<<"Tmp map. "<<m_mainAddress<<" : "<<it->first
