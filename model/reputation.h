@@ -26,6 +26,7 @@ namespace ns3
         void calculateMatrixS();
         int getSij(Ipv4Address i, Ipv4Address j);
         bool hasInList(std::list<Ipv4Address> list,  Ipv4Address ip);
+        void printMap();
 
     public:
         Reputation(Ipv4Address addr);

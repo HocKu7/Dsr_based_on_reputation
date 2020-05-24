@@ -41,7 +41,11 @@
 
 using namespace ns3;
 
+void createFlow(int from, int to, Ipv4InterfaceContainer allInterfaces, NodeContainer adhocNodes);
+
 NS_LOG_COMPONENT_DEFINE ("DsrTest");
+double TotalTime = 10.0;
+double dataStart = 1.0; // start sending data at 100s
 
 int
 main (int argc, char *argv[])
@@ -78,11 +82,11 @@ main (int argc, char *argv[])
   // General parameters
   uint32_t nWifis = 5;
   uint32_t nSinks = 5;
-  double TotalTime = 10.0;
+  
   //double dataTime = 7.0;
-  double ppers = 1;
+  //double ppers = 1;
   uint32_t packetSize = 64;
-  double dataStart = 1.0; // start sending data at 100s
+ 
 
   //mobility parameters
   double pauseTime = 0.0;
@@ -179,7 +183,7 @@ main (int argc, char *argv[])
   allInterfaces = address.Assign (allDevices);
 
   uint16_t port = 9;
-  double randomStartTime = (1 / ppers) / nSinks; //distributed btw 1s evenly as we are sending 4pkt/s
+  //double randomStartTime = (1 / ppers) / nSinks; //distributed btw 1s evenly as we are sending 4pkt/s
 
 
   for (uint32_t i = 0; i < nSinks; ++i)
@@ -189,50 +193,35 @@ main (int argc, char *argv[])
       apps_sink.Start (Seconds (0.0));
       apps_sink.Stop (Seconds (TotalTime));
 
-      OnOffHelper onoff1 ("ns3::UdpSocketFactory", Address (InetSocketAddress (allInterfaces.GetAddress (i), port)));
-      onoff1.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1.0]"));
-      onoff1.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0.0]"));
-      onoff1.SetAttribute ("PacketSize", UintegerValue (packetSize));
-      onoff1.SetAttribute ("DataRate", DataRateValue (DataRate (rate)));
-
-      ApplicationContainer apps1 = onoff1.Install (adhocNodes.Get (3)); //nWifis - nSinks));
-      apps1.Start (Seconds (dataStart + i * randomStartTime));
-      apps1.Stop (Seconds (TotalTime));
-
-
+      // OnOffHelper onoff1 ("ns3::UdpSocketFactory", Address (InetSocketAddress (allInterfaces.GetAddress (i), port)));
+      // onoff1.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=1.0]"));
+      // onoff1.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0.0]"));
+      // onoff1.SetAttribute ("PacketSize", UintegerValue (packetSize));
+      // onoff1.SetAttribute ("DataRate", DataRateValue (DataRate (rate)));
+        // ApplicationContainer apps1 = onoff1.Install (adhocNodes.Get (3)); //nWifis - nSinks));
+        // apps1.Start (Seconds (dataStart + i * randomStartTime));
+        // apps1.Stop (Seconds (TotalTime));
     //   ApplicationContainer apps3 = onoff1.Install (adhocNodes.Get ((random()+2)%5)); //nWifis - nSinks));
     //   apps3.Start (Seconds (dataStart + i * randomStartTime));
     //   apps3.Stop (Seconds (dataTime + i * randomStartTime));
     }
 
- 
-  OnOffHelper onoff ("ns3::UdpSocketFactory",
-                     InetSocketAddress (allInterfaces.GetAddress (1), port));
-  onoff.SetConstantRate (DataRate ("448kb/s"));
 
-  ApplicationContainer apps = onoff.Install (adhocNodes.Get (0));
-  apps.Start (Seconds (1.0));
-  apps.Stop (Seconds (TotalTime));
+  //TO 3
+  createFlow(2,3, allInterfaces, adhocNodes);
+  createFlow(1,3, allInterfaces, adhocNodes);
+  createFlow(0,3, allInterfaces, adhocNodes);
+  createFlow(4,3, allInterfaces, adhocNodes);
 
-  // Create a packet sink to receive these packets
-  PacketSinkHelper sink ("ns3::UdpSocketFactory",
-                         InetSocketAddress (Ipv4Address::GetAny (), port));
+   //TO 2
+  createFlow(0,2, allInterfaces, adhocNodes);
+  createFlow(1,2, allInterfaces, adhocNodes);
 
-  apps = sink.Install (adhocNodes.Get (3));
-  apps.Start (Seconds (1.0));
-  apps.Stop (Seconds (TotalTime));
-
-  // Create a similar flow from n3 to n1, starting at time 1.1 seconds
-  onoff.SetAttribute ("Remote",
-                      AddressValue (InetSocketAddress (allInterfaces.GetAddress (0), port)));
-  apps = onoff.Install (adhocNodes.Get (3));
-  apps.Start (Seconds (1.1));
-  apps.Stop (Seconds (TotalTime));
-
-  // Create a packet sink to receive these packets
-  apps = sink.Install (adhocNodes.Get (1));
-  apps.Start (Seconds (1.1));
-  apps.Stop (Seconds (TotalTime));
+  //  //TO 1
+  // createFlow(0,1, allInterfaces, adhocNodes);
+  // createFlow(2,1, allInterfaces, adhocNodes);
+  // createFlow(3,1, allInterfaces, adhocNodes);
+  // createFlow(4,1, allInterfaces, adhocNodes);
 
 
 
@@ -242,4 +231,18 @@ main (int argc, char *argv[])
   Simulator::Destroy ();
 }
 
+
+void createFlow(int from, int to, Ipv4InterfaceContainer allInterfaces, NodeContainer adhocNodes){
+
+  OnOffHelper onoff_1 ("ns3::UdpSocketFactory",
+                     InetSocketAddress (allInterfaces.GetAddress (0), /*port*/9));
+  onoff_1.SetConstantRate (DataRate ("448kb/s"));
+
+  //Create a similar flow from n3 to n1, starting at time 1.1 seconds
+  onoff_1.SetAttribute ("Remote",
+                      AddressValue (InetSocketAddress (allInterfaces.GetAddress (from), 9)));
+  ApplicationContainer apps = onoff_1.Install (adhocNodes.Get (to));
+  apps.Start (Seconds (1.1));
+  apps.Stop (Seconds (TotalTime));
+}
 

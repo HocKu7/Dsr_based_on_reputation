@@ -10,6 +10,7 @@ namespace ns3
     }
 
     void Reputation::addToTable(Ipv4Address node, std::map<Ipv4Address, std::pair<int,int> > map){
+
         tableMapRep[node] = map;
     }
 
@@ -24,12 +25,17 @@ namespace ns3
     void
     Reputation::calculateMatrixS(){
         
-        std::cout<<"calculated"<<std::endl;
+        //std::cout<<"calculated on: "<<m_mainIp <<std::endl;
         std::list <Ipv4Address> ipList;
 
+        printMap();
         for(std::map<Ipv4Address, std::map<Ipv4Address, std::pair<int, int> > > ::const_iterator nodeEntryMap = tableMapRep.begin();
         nodeEntryMap!=tableMapRep.end(); nodeEntryMap++){
 
+            Ipv4Address i_node = nodeEntryMap->first;
+                if(!hasInList(ipList, i_node)){
+                    ipList.push_back(i_node);
+                }
             std::map<Ipv4Address, std::pair<int, int> > nodeMap = nodeEntryMap->second;
             
             for(std::map<Ipv4Address, std::pair<int, int> > :: iterator it = nodeMap.begin(); it!=nodeMap.end();
@@ -53,12 +59,13 @@ namespace ns3
                  
                  if(i!=j){
                     vectorStat(indx) = getSij(*i,*j);
-                 } else {
+                 } 
+                 else {
                      vectorStat(indx) = 0;
                  }
                  indx++;
             }
-
+            //std::cout<<vectorStat<<std::endl;
             for(int k = 0; k<vectorStat.size(); k++){
                 matrixS(curentRow,k) = vectorStat(k);
             }
@@ -85,6 +92,7 @@ namespace ns3
     Reputation::getSij(Ipv4Address i, Ipv4Address j){
 
         std::pair<int, int> pair = tableMapRep[i][j];
+        //std::cout<<"i: "<<i<<" j: "<<j<<" "<<pair.first<<"/"<<pair.second<<std::endl;
         return pair.second - (pair.first - pair.second);
     }
 
@@ -95,5 +103,22 @@ namespace ns3
     void
     Reputation::calculateReputationTable(){
         calculateMatrixS();
+    }
+
+    void 
+    Reputation::printMap(){
+        
+        std::cout<<"--------------"<<std::endl;
+          for(std::map<Ipv4Address, std::map<Ipv4Address, std::pair<int, int> > > ::const_iterator nodeEntryMap = tableMapRep.begin();
+        nodeEntryMap!=tableMapRep.end(); nodeEntryMap++){
+            
+            std::cout<<"info from: "<<nodeEntryMap->first<<std::endl;
+            std::map<Ipv4Address, std::pair<int, int> > map = nodeEntryMap->second;
+            for(std::map<Ipv4Address, std::pair<int, int> > :: iterator it =map.begin(); it!=map.end();
+                it++){
+                    std::cout<<"Node: "<<it->first<<" : "<<it->second.first<<"/"<<it->second.second<<std::endl;
+            }
+        }
+         std::cout<<"--------------"<<std::endl;
     }
 } // namespace ns3

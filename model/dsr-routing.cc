@@ -383,7 +383,6 @@ DsrRouting::DsrRouting ()
   Insert (ackReq);
   Insert (ack);
 
-  eigen=new Reputation(m_mainAddress);
   waitList.resize(WAIT_LIST_CAPACITY);
 
   // Check the send buffer for sending packets
@@ -501,6 +500,7 @@ void DsrRouting::Start ()
               SetRouteCache (routeCache);
               // Set the main address as the current ip address
               m_mainAddress = addr;
+              eigen=new Reputation(m_mainAddress);
 
               m_ipv4->GetNetDevice (1)->SetPromiscReceiveCallback (MakeCallback (&DsrRouting::PromiscReceive, this));
 
@@ -1527,6 +1527,7 @@ DsrRouting::ForwardErrPacket (DsrOptionRerrUnreachHeader &rerr,
 void DsrRouting::plusAllStat(Ipv4Address dest){ 
  
   tableMapRep[m_mainAddress][dest].first++;
+  eigen->incrementSendStat(dest);
   statisticConteiner[dest].first++;
 }
 void DsrRouting::plusReceivedStat(Ipv4Address senderIface){
@@ -3607,7 +3608,7 @@ DsrRouting::SendMyResponce  (Ipv4Address unreachNode, Ipv4Address destination, I
   Ptr<Packet> newPacket = Create<Packet> ();
   if (!findRoute)
     {
-      std::cout<<"RepResponce not found route"<<std::endl;
+      //std::cout<<"RepResponce not found route"<<std::endl;
     }
   else
     {
@@ -3858,7 +3859,7 @@ DsrRouting::Receive (Ptr<Packet> p,
 
         // std::cout<<"CHECK"<<std::endl;
         //plusReceivedStat(source);
-        std::cout<<"GetREPUTATION_RESPONCE"<<std::endl;
+        //std::cout<<"GetREPUTATION_RESPONCE"<<std::endl;
         Ptr<Packet> p = tempPacket->Copy ();
         DsrOptionResponceRep rrep;
         p->RemoveHeader (rrep);
