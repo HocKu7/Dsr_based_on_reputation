@@ -98,7 +98,9 @@ namespace ns3
 
     void 
     Reputation::calculateMatrixC(){
-
+        
+        Eigen::VectorXd vectorStat;
+        
     }
     void
     Reputation::calculateReputationTable(){

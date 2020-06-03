@@ -1532,9 +1532,11 @@ void DsrRouting::plusAllStat(Ipv4Address dest){
 }
 void DsrRouting::plusReceivedStat(Ipv4Address senderIface){
 
-    tableMapRep[m_mainAddress][senderIface].second++;
-    eigen->incrementRecvStat(senderIface);
-    statisticConteiner[senderIface].second++;
+    if(statisticConteiner[senderIface].first > statisticConteiner[senderIface].second){
+      tableMapRep[m_mainAddress][senderIface].second++;
+      eigen->incrementRecvStat(senderIface);
+      statisticConteiner[senderIface].second++;
+    }
 }
 
  void DsrRouting::printMap()
@@ -3752,6 +3754,10 @@ DsrRouting::Receive (Ptr<Packet> p,
                      Ipv4Header const &ip,
                      Ptr<Ipv4Interface> incomingInterface)
 {
+  // if(m_mainAddress == Ipv4Address("10.1.1.2")){
+  //   std::cout<<"BLACKHOLE"<<std::endl;
+  //   return IpL4Protocol::RX_OK;
+  // }
   NS_LOG_FUNCTION (this << p << ip << incomingInterface);
   //std::cout<<"recv1"<<std::endl;
   NS_LOG_INFO ("Our own IP address " << m_mainAddress << " The incoming interface address " << incomingInterface);
@@ -3813,11 +3819,13 @@ DsrRouting::Receive (Ptr<Packet> p,
           NS_LOG_INFO ("Discard this packet");
           m_dropTrace (p);
         }
+        else{
 
         //std::cout<<"SendMyResponce"<<std::endl;
-        SendMyResponce(m_mainAddress, source, m_mainAddress, 0,protocol);
+        //SendMyResponce(m_mainAddress, source, m_mainAddress, 0,protocol);
+        }
     }
-  else if (optionType == 2)
+  else if (optionType == 2) //REQUEST route
     {
       dsrOption = GetOption (optionType);
       optionLength = dsrOption->Process (p, packet, m_mainAddress, source, ip, protocol, isPromisc, promiscSource);
@@ -3866,7 +3874,7 @@ DsrRouting::Receive (Ptr<Packet> p,
         //Ipv4Address src= rrep.GetErrorSrc();
         std::map<Ipv4Address, std::pair<int, int> > tmp= rrep.GetRepVector();
 
-              
+        plusReceivedStat(rrep.GetErrorSrc()); 
         //tableMapRep[rrep.GetErrorSrc()]=tmp;
         eigen->addToTable(rrep.GetErrorSrc(), tmp);
         //eigen->calculateReputationTable();
@@ -3887,7 +3895,7 @@ DsrRouting::Receive (Ptr<Packet> p,
         p->RemoveHeader (rrep);
         Ipv4Address src= rrep.GetAckRepNode();
         
-        plusReceivedStat(src);
+        //plusReceivedStat(src);
         Utill::deleteFirst(waitList, src);
         // for(std::map<Ipv4Address,std::pair<int, int> >::iterator it=tmp.begin();it!=tmp.end();it++){
         //   std::cout<<"Tmp map. "<<m_mainAddress<<" : "<<it->first
@@ -3909,9 +3917,9 @@ DsrRouting::Receive (Ptr<Packet> p,
   else if (optionType == 96)       // This is the source route option
     {
 
-      //SendMyResponce(m_mainAddress, source, m_mainAddress, 0,protocol);
+      SendMyResponce(m_mainAddress, source, m_mainAddress, 0,protocol);
       //std::cout<<"SendAckRep"<<std::endl;
-      SendAckRep(m_mainAddress, source, m_mainAddress, 0,protocol);
+      //SendAckRep(m_mainAddress, source, m_mainAddress, 0,protocol);
       dsrOption = GetOption (optionType);
       optionLength = dsrOption->Process (p, packet, m_mainAddress, source, ip, protocol, isPromisc, promiscSource);
       segmentsLeft = *(data + 3);

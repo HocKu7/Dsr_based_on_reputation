@@ -146,28 +146,26 @@ main (int argc, char *argv[])
   wifiPhy.EnableAsciiAll (stream);
 
   MobilityHelper adhocMobility;
-  ObjectFactory pos;
-  pos.SetTypeId ("ns3::RandomRectanglePositionAllocator");
-  pos.Set ("X", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=300.0]"));
-  pos.Set ("Y", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=1500.0]"));
-  Ptr<PositionAllocator> taPositionAlloc = pos.Create ()->GetObject<PositionAllocator> ();
+  Ptr<ListPositionAllocator> positionAlloc = CreateObject <ListPositionAllocator>();
+  // Ptr<UniformRandomVariable> rvar1 = CreateObject<UniformRandomVariable>();
+  // Ptr<UniformRandomVariable> rvar2 = CreateObject<UniformRandomVariable>();
+  
+  // for (NodeContainer::Iterator iter1= adhocNodes.Begin(); *iter1!=adhocNodes.Get(nWifis-1); ++iter1)
+  // {
+  //    //double xxx = rvar1->GetValue(-600, 600);
+  //    //double yyy = rvar2->GetValue(-600, 600);
+  //    double xxx = rvar1->GetValue(-50, 50);
+  //    double yyy = rvar2->GetValue(-50, 50);
+  //    positionAlloc ->Add(Vector(xxx, yyy, 0)); //set random location for each car
+  // }
 
-  std::ostringstream speedUniformRandomVariableStream;
-  speedUniformRandomVariableStream << "ns3::UniformRandomVariable[Min=0.0|Max="
-                                   << nodeSpeed
-                                   << "]";
+  positionAlloc ->Add(Vector(0, 0, 0));
+  positionAlloc ->Add(Vector(0, 50, 0));
+  positionAlloc ->Add(Vector(50, 0, 0));
+  positionAlloc ->Add(Vector(50, 50, 0));
+  positionAlloc ->Add(Vector(100, 100, 0));
 
-  std::ostringstream pauseConstantRandomVariableStream;
-  pauseConstantRandomVariableStream << "ns3::ConstantRandomVariable[Constant="
-                                   << pauseTime
-                                   << "]";
-
-  adhocMobility.SetMobilityModel ("ns3::RandomWaypointMobilityModel",
-                                  //                                  "Speed", StringValue ("ns3::UniformRandomVariable[Min=0.0|Max=nodeSpeed]"),
-                                  "Speed", StringValue (speedUniformRandomVariableStream.str ()),
-                                  "Pause", StringValue (pauseConstantRandomVariableStream.str ()),
-                                  "PositionAllocator", PointerValue (taPositionAlloc)
-                                  );
+  adhocMobility.SetPositionAllocator(positionAlloc);
   adhocMobility.Install (adhocNodes);
 
   InternetStackHelper internet;
@@ -184,7 +182,6 @@ main (int argc, char *argv[])
 
   uint16_t port = 9;
   //double randomStartTime = (1 / ppers) / nSinks; //distributed btw 1s evenly as we are sending 4pkt/s
-
 
   for (uint32_t i = 0; i < nSinks; ++i)
     {
@@ -207,18 +204,45 @@ main (int argc, char *argv[])
     }
 
 
-  //TO 3
-  createFlow(2,3, allInterfaces, adhocNodes);
-  createFlow(1,3, allInterfaces, adhocNodes);
+// to 1
+  createFlow(0,1, allInterfaces, adhocNodes);
+  createFlow(0,2, allInterfaces, adhocNodes);
   createFlow(0,3, allInterfaces, adhocNodes);
+  createFlow(0,4, allInterfaces, adhocNodes);
+
+  // to 2
+  createFlow(1,0, allInterfaces, adhocNodes);
+  createFlow(1,2, allInterfaces, adhocNodes);
+  createFlow(1,3, allInterfaces, adhocNodes);
+  createFlow(1,4, allInterfaces, adhocNodes);
+
+
+ // to 3
+  createFlow(2,0, allInterfaces, adhocNodes);
+  createFlow(2,1, allInterfaces, adhocNodes);
+  createFlow(2,3, allInterfaces, adhocNodes);
+  createFlow(2,4, allInterfaces, adhocNodes);
+
+   // to 4
+  createFlow(3,0, allInterfaces, adhocNodes);
+  createFlow(3,1, allInterfaces, adhocNodes);
+  createFlow(3,2, allInterfaces, adhocNodes);
+  createFlow(3,4, allInterfaces, adhocNodes);
+
+   // to 5
+  createFlow(4,0, allInterfaces, adhocNodes);
+  createFlow(4,1, allInterfaces, adhocNodes);
+  createFlow(4,2, allInterfaces, adhocNodes);
   createFlow(4,3, allInterfaces, adhocNodes);
 
-   //TO 2
-  createFlow(0,2, allInterfaces, adhocNodes);
-  createFlow(1,2, allInterfaces, adhocNodes);
-
-  //  //TO 1
+   //from 2
+  // createFlow(0,2, allInterfaces, adhocNodes);
   // createFlow(0,1, allInterfaces, adhocNodes);
+  // createFlow(0,4, allInterfaces, adhocNodes);
+  // createFlow(1,2, allInterfaces, adhocNodes);
+
+  //  //from 1
+  //createFlow(0,1, allInterfaces, adhocNodes);
   // createFlow(2,1, allInterfaces, adhocNodes);
   // createFlow(3,1, allInterfaces, adhocNodes);
   // createFlow(4,1, allInterfaces, adhocNodes);
@@ -236,7 +260,7 @@ void createFlow(int from, int to, Ipv4InterfaceContainer allInterfaces, NodeCont
 
   OnOffHelper onoff_1 ("ns3::UdpSocketFactory",
                      InetSocketAddress (allInterfaces.GetAddress (0), /*port*/9));
-  onoff_1.SetConstantRate (DataRate ("448kb/s"));
+  onoff_1.SetConstantRate (DataRate ("64kb/s"));
 
   //Create a similar flow from n3 to n1, starting at time 1.1 seconds
   onoff_1.SetAttribute ("Remote",

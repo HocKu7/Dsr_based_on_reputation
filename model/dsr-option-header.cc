@@ -1230,10 +1230,10 @@ uint32_t DsrOptionResponceRep::Deserialize (Buffer::Iterator start)
       //SetNodeAddress (index, m_address);
       //std::cout<<"Deserialize adress: "<<m_address<<std::endl;
       int success=(int)i.ReadU16();
-      vectorMap[m_address].first=success;
+      vectorMap[m_address].second=success;
 
       int unsuccess=(int)i.ReadU16();
-      vectorMap[m_address].second=unsuccess;
+      vectorMap[m_address].first=unsuccess;
 
       ++index;
     }
