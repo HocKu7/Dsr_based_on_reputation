@@ -3755,7 +3755,7 @@ DsrRouting::Receive (Ptr<Packet> p,
                      Ptr<Ipv4Interface> incomingInterface)
 {
   // if(m_mainAddress == Ipv4Address("10.1.1.2")){
-  //   std::cout<<"BLACKHOLE"<<std::endl;
+  //   // std::cout<<"BLACKHOLE"<<std::endl;
   //   return IpL4Protocol::RX_OK;
   // }
   NS_LOG_FUNCTION (this << p << ip << incomingInterface);
@@ -3916,8 +3916,9 @@ DsrRouting::Receive (Ptr<Packet> p,
 
   else if (optionType == 96)       // This is the source route option
     {
-
-      SendMyResponce(m_mainAddress, source, m_mainAddress, 0,protocol);
+      // if(!m_mainAddress.IsEqual(Ipv4Address("10.1.1.2")))
+        SendMyResponce(m_mainAddress, source, m_mainAddress, 0,protocol);
+      
       //std::cout<<"SendAckRep"<<std::endl;
       //SendAckRep(m_mainAddress, source, m_mainAddress, 0,protocol);
       dsrOption = GetOption (optionType);

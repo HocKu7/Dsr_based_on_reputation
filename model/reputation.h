@@ -18,15 +18,22 @@ namespace ns3
         Ipv4Address m_mainIp;
         Eigen::MatrixXd matrixC;
         Eigen::MatrixXd matrixS;
+        Eigen::VectorXd vectorRep;
         std::map<Ipv4Address, std::map<Ipv4Address, std::pair<int, int> > > tableMapRep;
+        std::map<Ipv4Address, double> resultMapReputation;
         std::map<Ipv4Address, int> ipToLineMap;
         double delta;
+        int countRow;
+        int countCol;
 
         void calculateMatrixC();
         void calculateMatrixS();
+        void calculateVectorT();
         int getSij(Ipv4Address i, Ipv4Address j);
         bool hasInList(std::list<Ipv4Address> list,  Ipv4Address ip);
         void printMap();
+        void printResult();
+        void vectorToMap();
 
     public:
         Reputation(Ipv4Address addr);
@@ -34,6 +41,9 @@ namespace ns3
         void incrementSendStat(Ipv4Address dst);
         void incrementRecvStat(Ipv4Address dst);
         void calculateReputationTable();
+        
+        std::map<Ipv4Address, double> getResult();
+
     };
 } // namespace ns3
 #endif /* EIGEN_H */
